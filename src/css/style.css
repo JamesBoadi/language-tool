@@ -1,0 +1,512 @@
+/* =============================================================================
+   CSS Styles
+   ========================================================================== */
+
+/** Basic settings **/
+body {
+
+    background-color: #cbcbcb37 !important;
+    color: #171717;
+    font-size: 100%;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    padding: 40px;
+    overflow-x: auto;
+}
+
+body .parent-container {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    justify-content: center;
+}
+
+.lds-ring {
+    position: absolute;
+    left: 415px;
+    top: 260px;
+    width: 80px;
+    height: 80px;
+    z-index: 999;
+    visibility: hidden;
+}
+
+.lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 8px solid rgb(21, 21, 21);
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: rgb(80, 78, 78) transparent transparent transparent;
+}
+
+.lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+.lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes lds-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.border {
+    position: absolute;
+    margin-left: -700px;
+    width: 43rem;
+    height: 40rem;
+    background: rgba(177, 175, 175, 0.274);
+    border: 0;
+    padding: 15px;
+    font-weight: bold;
+    border-radius: 15px;
+    z-index: -999;
+}
+
+.border .editable-text-placeholder {
+    position: absolute;
+    font-weight: lighter;
+    font-size: 45px;
+    left: 275px;
+    top: 40px;
+    color: rgb(124, 123, 123);
+    letter-spacing: 0px;
+    z-index: 999;
+    visibility: visible;
+}
+
+.editable {
+    transform: translateY(25px);
+    width: 40rem;
+    height: 35rem;
+    outline-style: solid;
+    outline-width: 1px;
+    background: rgba(220, 218, 221, 0.799);
+    border: 0;
+    padding: 15px;
+    color: rgba(0, 0, 0, 0.932);
+    font-weight: bold;
+    border-radius: 15px;
+    transition: 0.9s ease;
+    resize: none;
+    overflow-y: auto;
+}
+
+.editable:hover {
+    background: rgb(254, 251, 255);
+}
+
+.output {
+    position: absolute;
+}
+
+.output .container {
+    position: absolute;
+    top: -45px;
+    margin-left: 115px;
+    width: 43rem;
+    height: 40rem;
+    word-break: break-all;
+    background: rgba(177, 175, 175, 0.274);
+    border: 0;
+    padding: 15px;
+    font-weight: bold;
+    border-radius: 15px;
+    z-index: 998;
+}
+
+.output .container .output-text {
+    display: inline-block;
+    max-width: 40rem;
+    word-spacing: 5px !important;
+    word-break: break-word;
+}
+
+.output .container .output-text-placeholder {
+    position: absolute;
+    left: 250px;
+    font-weight: lighter;
+    font-size: 43px;
+    color: rgb(124, 123, 123);
+    letter-spacing: -1px;
+}
+
+.improvements {}
+
+.submit {
+    position: relative;
+    top: -80px;
+    color: black !important;
+    font-weight: bold !important;
+    background: rgba(220, 218, 221, 0.799) !important;
+    transition: 1.3s ease !important;
+}
+
+.submit:hover {
+    background: rgba(112, 111, 112, 0.51) !important;
+}
+
+
+@media screen and (max-width: 576px) {
+
+    body .parent-container {
+        position: absolute;
+        display: flexbox;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        justify-content: center;
+    }
+
+    .lds-ring {
+        position: absolute;
+        left: 23.5px;
+        top: 794px;
+        width: 40px;
+        height: 40px;
+        z-index: 999;
+        visibility: hidden;
+    }
+
+    .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        margin: 8px;
+        border: 8px solid rgb(21, 21, 21);
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: rgb(80, 78, 78) transparent transparent transparent;
+    }
+
+    .border {
+        position: relative;
+        top: 250px;
+        left: 600px;
+        width: 18rem;
+        height: 20rem;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: 999;
+    }
+
+    .border .editable-text-placeholder {
+        position: absolute;
+        font-weight: lighter;
+        font-size: 40px;
+        left: 93px;
+        top: 40px;
+        color: rgb(124, 123, 123);
+        letter-spacing: 0px;
+        z-index: 999;
+        visibility: visible;
+    }
+
+    .editable {
+        transform: translateY(25px);
+        width: 16rem;
+        height: 15rem;
+        outline-style: solid;
+        outline-width: 1px;
+        background: rgba(220, 218, 221, 0.799);
+        border: 0;
+        padding: 15px;
+        color: rgba(0, 0, 0, 0.932);
+        font-weight: bold;
+        border-radius: 15px;
+        transition: 0.9s ease;
+        resize: none;
+        overflow-y: auto;
+    }
+
+    .output .container {
+        position: relative;
+        top: 300px;
+        left: -203.5px;
+        width: 18rem;
+        height: 20rem;
+        word-break: break-all;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: 998;
+    }
+
+    .output .container .editable {
+        transform: translate(0px, 25px) !important;
+    }
+
+    .output .container .output-text-placeholder {
+        position: absolute;
+        top: 0px;
+        left: 58px;
+        font-weight: lighter;
+        font-size: 43px;
+        color: rgb(124, 123, 123);
+        letter-spacing: -1px;
+    }
+    
+    .submit {
+        position: relative;
+        top: -175px;
+        left: 0px;
+        color: black !important;
+        font-weight: bold !important;
+        background: rgba(220, 218, 221, 0.799) !important;
+        transition: 1.3s ease !important;
+        justify-content: center;
+    }
+
+    .submit:hover {
+        background: rgba(112, 111, 112, 0.51) !important;
+    }
+
+
+}
+
+@media only screen and (min-width: 576px) and (max-width:1220px) {
+
+    body .parent-container {
+        position: absolute;
+        display: flexbox;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        justify-content: center;
+    }
+
+
+    .lds-ring {
+        position: absolute;
+        left: 10px;
+        top: 790px;
+        width: 40px;
+        height: 40px;
+        z-index: 999;
+        visibility: hidden;
+    }
+
+    .border {
+        position: relative;
+        top: 250px;
+        left: 520px;
+        width: 28rem;
+        height: 20rem;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: 999;
+    }
+
+    .border .editable-text-placeholder {
+        position: absolute;
+        font-weight: lighter;
+        font-size: 45px;
+        left: 159px;
+        top: 40px;
+        color: rgb(124, 123, 123);
+        letter-spacing: 0px;
+        z-index: 999;
+        visibility: visible;
+    }
+
+    .editable {
+        transform: translateY(25px);
+        width: 26rem;
+        height: 16rem;
+        outline-style: solid;
+        outline-width: 1px;
+        background: rgba(220, 218, 221, 0.799);
+        border: 0;
+        padding: 15px;
+        color: rgba(0, 0, 0, 0.932);
+        font-weight: bold;
+        border-radius: 15px;
+        transition: 0.9s ease;
+        resize: none;
+        overflow-y: auto;
+    }
+
+    .output .container {
+        position: relative;
+        top: 300px;
+        left: -290px;
+        width: 28rem;
+        height: 20rem;
+        word-break: break-all;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: 998;
+    }
+
+    .output .container .editable {
+        transform: translate(0px, 25px) !important;
+    }
+
+    .output .container .output-text-placeholder {
+        position: absolute;
+        top: 0px;
+        left: 135px;
+        font-weight: lighter;
+        font-size: 43px;
+        color: rgb(124, 123, 123);
+        letter-spacing: -1px;
+    }
+
+    .submit {
+        position: relative;
+        top: -200px;
+        left: 0px;
+        color: black !important;
+        font-weight: bold !important;
+        background: rgba(220, 218, 221, 0.799) !important;
+        transition: 1.3s ease !important;
+        justify-content: center;
+    }
+
+    .submit:hover {
+        background: rgba(112, 111, 112, 0.51) !important;
+    }
+
+}
+
+@media only screen and (min-width:1220px) and (max-width:1400px) {
+    .border {
+        position: absolute;
+        margin-left: -560px;
+        width: 37rem;
+        height: 34rem;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: -999;
+    }
+
+    .border .editable-text-placeholder {
+        position: absolute;
+        font-weight: lighter;
+        font-size: 45px;
+        left: 200px;
+        top: 40px;
+        color: rgb(124, 123, 123);
+        letter-spacing: 0px;
+        z-index: 999;
+        visibility: visible;
+    }
+
+    
+
+    .lds-ring {
+        position: absolute;
+        left: 325px;
+        top: 235px;
+        width: 80px;
+        height: 80px;
+        z-index: 999;
+        visibility: hidden;
+    }
+
+    .editable {
+        transform: translateY(25px);
+        width: 34rem;
+        height: 29rem;
+        outline-style: solid;
+        outline-width: 1px;
+        background: rgba(220, 218, 221, 0.799);
+        border: 0;
+        padding: 15px;
+        color: rgba(0, 0, 0, 0.932);
+        font-weight: bold;
+        border-radius: 15px;
+        transition: 0.9s ease;
+        resize: none;
+        overflow-y: auto;
+    }
+
+    .editable:hover {
+        background: rgb(254, 251, 255);
+    }
+
+    .output {
+        position: absolute;
+    }
+
+    .output .container {
+        position: absolute;
+        top: -45px;
+        margin-left: 65px;
+        width: 37rem;
+        height: 34rem;
+        word-break: break-all;
+        background: rgba(177, 175, 175, 0.274);
+        border: 0;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 15px;
+        z-index: 998;
+    }
+
+    .output .container .output-text {
+        display: inline-block;
+        max-width: 40rem;
+        word-spacing: 5px !important;
+        word-break: break-all;
+    }
+
+    .output .container .output-text-placeholder {
+        position: absolute;
+        left: 210px;
+        font-weight: lighter;
+        font-size: 43px;
+        color: rgb(124, 123, 123);
+        letter-spacing: -1px;
+    }
+    
+
+    .submit {
+        position: relative;
+        top: -100px;
+        left: 0px;
+        color: black !important;
+        font-weight: bold !important;
+        background: rgba(220, 218, 221, 0.799) !important;
+        transition: 1.3s ease !important;
+    }
+
+    .submit:hover {
+        background: rgba(112, 111, 112, 0.51) !important;
+    }
+
+}
