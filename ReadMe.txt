@@ -7,9 +7,7 @@ To run offline (if you don't have internet connection) open settings.js with an 
 
 2. Change the endpoint to localhost:8081
 
-Next, open command line and cd to the folder where lantool was extracted
-
-Follow these instructions:
+Next, follow these instructions:
 
 https://dev.languagetool.org/http-server
 
