@@ -116,7 +116,7 @@ async function addWords(word) {
    pointer = 0;
 
    try {
-      request.open("POST", protocol + endpoint + "/v2/words?" + url);
+      request.open("POST", protocol + endpoint + "/v2/words/add?" + url);
 
       request.onerror = (() => {
          request.abort();
@@ -167,7 +167,7 @@ async function deleteWords(word) {
    pointer = 0;
 
    try {
-      request.open("POST", protocol + endpoint + "/v2/words?" + url);
+      request.open("POST", protocol + endpoint + "/v2/words/delete?" + url);
 
       request.onerror = (() => {
          request.abort();
