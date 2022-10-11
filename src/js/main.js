@@ -10,7 +10,7 @@ const onSubmitEvent = (e) => {
   // Can lead to unexpected results if the end is trimmed
   const text = document.getElementById("editable").value.toString().trimStart();
 
-  if(displayAlert)
+  if (displayAlert)
     displayAlert = false;
 
   if (!userTyping) {
@@ -21,23 +21,20 @@ const onSubmitEvent = (e) => {
   sanitize = assignId(sanitize);
   setSanitize(sanitize);
 
-  // check if empty
-  Object.entries(sanitize).forEach(val => {
-    const data = val[1];
-    if (!isEmpty(data.text)) {
-      empty = false;
-      return;
-    }
-  });
+  if (sanitize.length > 0 && !isEmpty(sanitize[0].text))
+    empty = false;
+
 
   if (!empty) {
     removeAllTags(); // cleanup
     setInput(sanitize.length - 1);
-
-    Object.entries(sanitize).forEach(val => {
-      getData(val[1]); // call API
-    });
+    let input = text.replace(/\s+/g, ' ');
+    getData(input.toString().trim()); // call API
+    return;
   }
+
+  if (getNoErrors())
+    setNoErrors(false);
 }
 
 tippy('span', {
@@ -58,8 +55,7 @@ tippy('span', {
  * data: {errors: errors, input: {id: id, text: text}}
  */
 const parseErrors = (data) => {
-  setGrammarErrors(data.errors);
-  checkErrors(data); // generate tags 
+  assignErrors(data); // generate tags 
 }
 
 
@@ -77,11 +73,31 @@ _text.onkeyup = function (e) {
     userTyping = true;
   }
 }
+/* 
+    The tipover will sometimes not display correctly on a new
+    paragraph line, currently no workaround for this from
+    our end 
+*/
+var output = document.getElementById("output-text");
+output.onmousedown = function (e) {
+  tippy('span', {
+    content(reference) {
+      const error = reference.getAttribute('error');
+      if (isEmpty(error))
+        return 'No suggestions avaliable';
+      return error;
+    },
+    interactive: true,
+    trigger: 'click',
+    zIndex: 9999,
+    placement: placement,
+  });
+}
 
 async function getData(input) {
   let formData = new FormData();
   formData.set('language', 'en-US');
-  formData.set('text', input.text); // Add rules to formData Object
+  formData.set('text', input); // Add rules to formData Object
   formData.set('enabledOnly', enabledOnly);
 
   let url = "";
@@ -128,7 +144,6 @@ async function getData(input) {
       if (!displayAlert) {
         setTimeout(() => {
           alert('There was an error with this request \n' +
-            'Text Entered: ' + input.text +
             '\nPlease ensure that only text is entered \n' +
             'There is no guarantee special characters will work!\n')
         }, 1000);
@@ -140,14 +155,40 @@ async function getData(input) {
     });
 
     request.onload = (() => {
+      if (request.status === 200) {
       errors = JSON.stringify(request.response)
-      const data = { input: input, errors: errors };
+      const data = { errors: errors };
       parseErrors(data);
+      }
+      else
+      {
+        if (!displayAlert) {
+          setTimeout(() => {
+            alert('There was an error with this request \n' +
+              'status: server responded with ' + request.status)
+          }, 1000);
+    
+          displayAlert = true;
+        }
+      }
+
+      animate.style = "visibility: hidden;";
+
     });
 
     request.send();
   }
   catch (err) {
+    if (!displayAlert) {
+      setTimeout(() => {
+        alert('There was an error with this request \n' +
+          'msg\n' + err)
+      }, 1000);
+
+      displayAlert = true;
+    }
+
+    animate.style = "visibility: hidden;";
     console.log(err);
   }
 
