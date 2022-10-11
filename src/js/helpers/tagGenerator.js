@@ -1,45 +1,41 @@
 /* =============================================================================
                                 Generating Tags
    ========================================================================== */
-let sortedArr = [];
+let errorsArr = [];
 let counter = 0;
 
 var outputPlaceholder = document.getElementById('output-text-placeholder');
 
 //  Add the tooltips
-const createTag = (data) => {
-    const input = data.input;
-    const errors = data.errors;
-    const sanitize = getSanitize();
+const createTag = (text) => {
+    const id = text.id;
+    const word = text.text;
+    const errors = text.errors;
     var output = document.getElementById("output-text");
-    var outputPlaceholder = document.getElementById('output-text-placeholder');
     var span = null;
 
     try {
         let error = "";
-        if (errors.matches.length > 0) {
+        if (typeof errors !== "string") {
             if (getNoErrors())
                 setNoErrors(false);
 
             span = document.createElement("span");
-            const matches = errors.matches[0];
-            const replacements = matches.replacements;
-            const words = [];
-
-            const length = replacements.length;
+            const replacementWords = [];
+            const length = errors.length;
 
             for (let index = 0; index < length; index++) {
-                const value = replacements[index].value;
-                words.push(value);
+                const value = errors[index].value;
+                replacementWords.push(value);
             }
-            error = concat(words); // text to be added to tooltip
-            span.setAttribute("id", "tooltip-" + input.id);
+            error = concat(replacementWords); // text to be added to tooltip
+            span.setAttribute("id", "tooltip-" + id);
             span.setAttribute("error", error);
             span.setAttribute("class", "improvements");
             span.style = "background-color: " + highlightColor;
         }
 
-        var content = document.createTextNode(input.text);
+        var content = document.createTextNode(word);
         if (span !== null) {
             span.appendChild(content);
             output.appendChild(span);
@@ -49,25 +45,8 @@ const createTag = (data) => {
             output.appendChild(content);
             output.appendChild(document.createTextNode('\u00A0'));
         }
-
-        // tippyjs bug 
-        /* 
-            The tipover will not display correctly on a new
-            paragraph line, currently no workaround for this from
-            our end
-        */
-        tippy('span', {
-            content(reference) {
-                const error = reference.getAttribute('error');
-                if (isEmpty(error))
-                    return 'No suggestions avaliable';
-                return error;
-            },
-            interactive: true,
-            trigger: 'click',
-            zIndex: 9999,
-        });
     } catch (error) {
+        console.log(error);
         if (!displayAlert) {
             setTimeout(() => {
                 alert('There was an error with this request \n' +
@@ -77,7 +56,6 @@ const createTag = (data) => {
 
             displayAlert = true;
         }
-
         return;
     }
 }
@@ -85,33 +63,56 @@ const createTag = (data) => {
 const removeAllTags = () => {
     counter = 0;
     pointer = 0;
+    errorsArr = [];
     sortedArr = [];
-    setNoErrors(0);
+    setNoErrors(false);
     let output = document.getElementById("output-text");
     while (output.lastChild) {
         output.removeChild(output.lastChild);
     }
 }
 
-// Parse errors
-const checkErrors = (data) => {
-    let len = sortedArr.length - 1;
-    let noErrors = getNoErrors();
-    const wordCount = getInput();
-    const input = data.input;
-    const errors = JSON.parse(data.errors);
+// Iterate through all of the errors
+const checkErrors = (input, errors) => {
+    if (errors.matches.length > 0) {
+        for (let pointer = 0; pointer < errors.matches.length; pointer++) {
+            // all errors
+            const matches = errors.matches[pointer];
+            const offset = matches.offset;
+            const len = matches.length;
+            let wordWithError = findWordWithError(input, offset, len);
+            if (Object.is(wordWithError, null))
+                continue;
 
-    sortedArr[input.id] = {};
-
-    sortedArr[input.id].input = input;
-    sortedArr[input.id].errors = errors;
-
-    if (counter === wordCount) {
-        while (pointer <= wordCount) {
-            createTag(sortedArr[pointer++]);
+            wordWithError.errors = matches.replacements;
+            errorsArr.push(wordWithError);
         }
     }
-    counter++;
+}
+
+// Assign errors to each word
+var sortedArr = [];
+const assignErrors = (data) => {
+    const input = getSanitize(); // The text in input box
+    const errors = JSON.parse(data.errors); // JSON response
+    checkErrors(input, errors);
+
+    // console.log(errorsArr);
+
+    for (let index = 0; index < input.length; index++) {
+        const id = input[index].id;
+        let res;
+        res = findID(errorsArr, id);
+        if (res !== undefined)
+            sortedArr.push(res);
+        else {
+            input[index].errors = ""; // errors
+            sortedArr.push(input[index]);
+        }
+    }
+
+    while (pointer < sortedArr.length)
+        createTag(sortedArr[pointer++]);
 
     if (getNoErrors()) {
         outputPlaceholder.innerText = "No Errors";
@@ -124,6 +125,7 @@ const checkErrors = (data) => {
 
     setNoErrors(true);
 }
+
 
 
 
