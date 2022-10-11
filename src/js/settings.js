@@ -16,6 +16,8 @@ var enabledOnly = false;
 
 var highlightColor = "#FFFF00;"; // Change the background color of text with errors
 
+var placement = "bottom"; // placement of tooltip
+
 /**
  * ***************************
  * Inactive settings
