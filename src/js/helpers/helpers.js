@@ -2,6 +2,20 @@
                             Helper Methods
    ========================================================================== */
 
+// Find word with error that matches the offset
+const findWordWithError = (input, offset, len) => {
+    let word = null;
+    let inputOffset = 0;
+    for (let index = 0; index < input.length; index++) {
+        const element = input[index];
+        let outputOffset = parseInt(offset + len);
+        inputOffset = parseInt(element.offset + element.len);
+        if (inputOffset === outputOffset)
+            return word = element;
+    }
+    return word;
+}
+
 const concat = (arr) => {
     let text = "";
     for (let index = 0; index < arr.length; index++) {
@@ -17,8 +31,8 @@ const concat = (arr) => {
 }
 
 const filterArr = (text) => {
-  
-    if(text.length <= 1)
+
+    if (text.length <= 1)
         return [text];
 
     let pointer = 0;
@@ -36,7 +50,7 @@ const filterArr = (text) => {
     }
 
     let lastStr = [];
-    for (let index = text.length -1; index >= 0; index--) {
+    for (let index = text.length - 1; index >= 0; index--) {
         const char = text[index];
         lastStr.push(char);
 
@@ -55,22 +69,54 @@ const filterArr = (text) => {
 }
 
 const assignId = (arr) => {
-    const newArr = [];
+    const modArr = [];
+    // add lengths
     for (let index = 0; index < arr.length; index++) {
         const element = arr[index];
-        newArr[index] = { id: index, text: element };
+        modArr[index] = {};
+
+        modArr[index].element = element; // Individual word
+        modArr[index].size = element.length; // Length of individual word
     }
 
+    const newArr = [];
+    let offsetCount = 0;
+    let offset = 0;
+
+    for (let index = 0; index < arr.length; index++) {
+        if (index === 0)
+            offset = 0;
+        else {
+            let prev = modArr[index - 1].size;
+            offset += prev + 1;
+        }
+
+        newArr[index] = {
+            id: index, text: modArr[index].element,
+            offset: offset, len: modArr[index].size
+        };
+    }
     return newArr;
 }
 
 const isEmpty = (myStr) => {
-    if (myStr === null || myStr.trim() === "" 
-    || myStr === undefined)
+    if (myStr === null || myStr.trim() === ""
+        || myStr === undefined)
         return true;
     return false;
 }
 
 const compareTo = (prev, next) => {
     return (next > prev);
+}
+
+const findID = (arr, id) => {
+    let item;
+    for (let index = 0; index < arr.length; index++) {
+
+        const element = arr[index];
+        if (element.id === id)
+            return item = element;
+    }
+    return item;
 }
