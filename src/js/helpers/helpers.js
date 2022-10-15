@@ -3,17 +3,32 @@
    ========================================================================== */
 
 // Find word with error that matches the offset
-const findWordWithError = (input, offset, len) => {
-    let word = null;
-    let inputOffset = 0;
+
+var trackOffset = 0;
+var map = new Map();
+
+const findWordWithError = (input) => {
+    store(input)
+}
+
+const store = function (input) {
+    let wordOffset = 0;
+    let word = {};
+
     for (let index = 0; index < input.length; index++) {
-        const element = input[index];
-        let outputOffset = parseInt(offset + len);
-        inputOffset = parseInt(element.offset + element.len);
-        if (inputOffset === outputOffset)
-            return word = element;
+        if (index === 0)
+            wordOffset = 0;
+        else {
+            let prev = input[index - 1].length;
+            wordOffset += prev + 1;
+        }
+
+        word.text = input[index];
+        word.offset = wordOffset;
+        word.errors = '';
+        map.set(index, word);
+        word = {};
     }
-    return word;
 }
 
 const concat = (arr) => {
@@ -31,10 +46,6 @@ const concat = (arr) => {
 }
 
 const filterArr = (text) => {
-
-    if (text.length <= 1)
-        return [text];
-
     let pointer = 0;
     let arr = [];
     for (let index = 0; index < text.length; index++) {
@@ -44,8 +55,7 @@ const filterArr = (text) => {
             const substring = text.substring(pointer, index + 1).trim();
             pointer = index;
 
-            if (substring !== '')
-                arr.push(substring);
+            arr.push(substring);
         }
     }
 
@@ -60,26 +70,23 @@ const filterArr = (text) => {
         }
     }
 
-    const _text = concat(arr);
+    _text = concat(arr);
+
     arr = [];
     pointer = 0;
-
     // Convert back to array
     return _text.split(" ");
 }
 
 const assignId = (arr) => {
     const modArr = [];
-    // add lengths
     for (let index = 0; index < arr.length; index++) {
-        const element = arr[index];
-        modArr[index] = {};
-
-        modArr[index].element = element; // Individual word
-        modArr[index].size = element.length; // Length of individual word
+        modArr[index].id = index; // id
     }
+    return modArr;
+}
 
-    const newArr = [];
+const compareOffset = () => {
     let offsetCount = 0;
     let offset = 0;
 
@@ -91,10 +98,6 @@ const assignId = (arr) => {
             offset += prev + 1;
         }
 
-        newArr[index] = {
-            id: index, text: modArr[index].element,
-            offset: offset, len: modArr[index].size
-        };
     }
     return newArr;
 }
@@ -110,13 +113,24 @@ const compareTo = (prev, next) => {
     return (next > prev);
 }
 
-const findID = (arr, id) => {
-    let item;
-    for (let index = 0; index < arr.length; index++) {
-
-        const element = arr[index];
-        if (element.id === id)
-            return item = element;
+const populate = (ranges) => {
+    for (let index = 0; index < ranges.length; index++) {
+        track[index] = {};
+        const range = ranges[index];
+        track[index].offset = range.offset;
+        track[index].length = range.length;
+        track[index].modified = false;
     }
-    return item;
 }
+
+const containsRange = (offset) => {
+    for (let index = 0; index < track.length; index++) {
+        const range = track[index];
+        if (offset === range.offset) {
+            return [index, false];
+        }
+    }
+
+    return [-1, true];
+}
+
