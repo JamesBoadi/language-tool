@@ -79,11 +79,10 @@ const filterArr = (text) => {
 }
 
 const assignId = (arr) => {
-    const modArr = [];
     for (let index = 0; index < arr.length; index++) {
-        modArr[index].id = index; // id
+        arr[index].id = index;
     }
-    return modArr;
+    return arr;
 }
 
 const compareOffset = () => {
@@ -113,6 +112,11 @@ const compareTo = (prev, next) => {
     return (next > prev);
 }
 
+
+const compareNumbers = (prev, next) => {
+    return (next.offset > prev.offset);
+}
+
 const populate = (ranges) => {
     for (let index = 0; index < ranges.length; index++) {
         track[index] = {};
@@ -133,4 +137,3 @@ const containsRange = (offset) => {
 
     return [-1, true];
 }
-
