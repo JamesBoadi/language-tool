@@ -176,6 +176,19 @@ const assignErrors = async (data) => {
     }
 
     words = assignId(words);
+  
+    
+    if (words.length === 0) {
+        setNoErrors(true);
+        for (let index = 0; index < input.length; index++) {
+            let text = input[index];
+            input[index] = {};
+            input[index].id = index;
+            input[index].text = text;
+            input[index].errors = '';
+        }
+        words = input;
+    }
 
     while (pointer < words.length)
         createTag(words[pointer++]);
