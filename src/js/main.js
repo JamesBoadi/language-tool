@@ -17,18 +17,19 @@ const onSubmitEvent = (e) => {
     inputPlaceholder.style = "visibility: hidden;";
     userTyping = true;
   }
+
   sanitize = filterArr(text);
-  sanitize = assignId(sanitize);
   setSanitize(sanitize);
 
-  if (sanitize.length > 0 && !isEmpty(sanitize[0].text))
+  if (sanitize.length > 0 && !isEmpty(sanitize[0]))
     empty = false;
-
-
+   
+  removeAllTags(); // cleanup
+  
   if (!empty) {
-    removeAllTags(); // cleanup
     setInput(sanitize.length - 1);
     let input = text.replace(/\s+/g, ' ');
+    setTextBlock(input);
     getData(input.toString().trim()); // call API
     return;
   }
@@ -36,6 +37,8 @@ const onSubmitEvent = (e) => {
   if (getNoErrors())
     setNoErrors(false);
 }
+
+
 
 tippy('span', {
   content(reference) {
@@ -156,18 +159,18 @@ async function getData(input) {
 
     request.onload = (() => {
       if (request.status === 200) {
-      errors = JSON.stringify(request.response)
-      const data = { errors: errors };
-      parseErrors(data);
+        errors = JSON.stringify(request.response)
+        //console.log(errors);
+        const data = { errors: errors };
+        parseErrors(data);
       }
-      else
-      {
+      else {
         if (!displayAlert) {
           setTimeout(() => {
             alert('There was an error with this request \n' +
               'status: server responded with ' + request.status)
           }, 1000);
-    
+
           displayAlert = true;
         }
       }
@@ -225,6 +228,21 @@ function getGrammarErrors() {
 function setGrammarErrors(errors) {
   grammarErrors = errors;
 }
+
+
+
+// Get the current word
+var textBlock = "";
+
+function getTextBlock() {
+  return textBlock;
+}
+function setTextBlock(text) {
+  textBlock = text;
+}
+
+
+
 
 // Get the current word
 var input = 0;
