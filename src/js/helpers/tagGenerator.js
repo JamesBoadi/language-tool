@@ -64,7 +64,8 @@ const removeAllTags = () => {
     counter = 0;
     pointer = 0;
     words = [];
-    map.clear();
+    matched = [];
+    unmatched = [];
 
     setNoErrors(false);
     let output = document.getElementById("output-text");
@@ -100,7 +101,7 @@ const unmatchedErrors = (errors) => {
         if (!match) {
             word.text = substring;
             word.offset = inputOffset;
-            word.errors = replacement;
+            word.errors = (replacement.length === 0) ? [{ value: error.message }] : replacement;
             unmatched.push(word);
         }
 
@@ -150,7 +151,7 @@ const setOffset = (item, errors) => {
             //console.log(errCount);
             item.errors = replacement;
             if (replacement.length === 0)
-                item.errors = error.message;
+                item.errors = [error.message];
 
             unmatched.push(item);
             return;
@@ -161,26 +162,20 @@ const setOffset = (item, errors) => {
 }
 
 // Assign errors to each word
-const assignErrors = (data) => {
+const assignErrors = async (data) => {
     const input = getSanitize(); // The text in input box
     let errors = JSON.parse(data.errors); // JSON response
     checkErrors(input, errors);
     unmatchedErrors(errors);
 
-    let match;
-    let unmatch;
+    let s = await mergeNoDuplicates(matched, unmatched);
 
-    mergeNoDuplicates(matched, unmatched)
-    //console.log(m);
-    /*  console.log(unmatched.length);
-      console.log(matched);
-  
-      // Sort offset and insert based on that
-      for (let index = 0; index < input.length; index++) {
-          const matched = matched[index];
-          const unmatched = unmatched[index];
-      }*/
+    for (let index = 0; index < s.length; index++) {
+        if (s[index] !== null)
+            words.push(s[index]);
+    }
 
+    words = assignId(words);
 
     while (pointer < words.length)
         createTag(words[pointer++]);
@@ -197,49 +192,91 @@ const assignErrors = (data) => {
     setNoErrors(true);
 }
 
-function mergeNoDuplicates(matched, unmatched) {
-    let sorted = new Map();
+async function mergeNoDuplicates(matched, unmatched) {
     let matchedLen = matched.length;
     let unmatchedLen = unmatched.length;
-    // console.log(matched);
-    //  console.log(unmatched);
 
-    for (let index = 0; index < matchedLen; index++)
-        sorted.set(index, matched[index]);
+    let s = [];
+    for (let index = 0; index < unmatchedLen; index++)
+        s[index] = unmatched[index];
 
     let counter = 0;
-    for (let index = matchedLen; index < matchedLen + unmatchedLen; index++)
-        sorted.set(index, unmatched[counter++]);
-
-    // Size of map can't dynamically increase swap afterwards
-
-    let sortedLen = sorted.size;
-    console.log(sortedLen);
-/*
-    for (var mCount = sortedLen - 1; mCount >= (0); mCount--) {
-        for (var uCount = sortedLen - mCount; uCount > 0; uCount--) {
-            if(sorted.get(uCount) === undefined)
-                continue;
-            if (sorted.get(mCount).offset > sorted.get(uCount - 1).offset) 
-            {
-                sorted.set(mCount, sorted.get(uCount));
-                sorted.set(mCount - 1, sorted.get(uCount));
+    for (let index = unmatchedLen; index < unmatchedLen + matchedLen; index++)
+        s[index] = matched[counter++];
+    // sort
+    let sLen = s.length;
+    let sortCounter = 0;
+    while (sortCounter < sLen) {
+        for (var mCount = 0; mCount <= (sLen - 1); mCount++) {
+            for (var uCount = 0; uCount < (sLen - mCount - 1); uCount++) {
+                if (s[uCount].offset > s[uCount + 1].offset) {
+                    let tmp = s[uCount];
+                    s[uCount] = s[uCount + 1];
+                    s[uCount + 1] = tmp;
+                }
             }
         }
-    } */
-
-    for (var mCount = 0; mCount <= (matchedLen - 1); mCount++) {
-        for (var uCount = 0; uCount <= (unmatchedLen - 1); uCount++) {
-            //Compare the adjacent positions
-            if (unmatched[uCount].offset > matched[mCount].offset) {
-                // Set keys 
-                sorted.set(mCount, unmatched[uCount]);
-                sorted.set(uCount, matched[mCount] )
-            }
-        }
+        sortCounter++;
     }
 
-    console.log(sorted);
+    // remove duplicates
+    for (let index = 0; index < s.length - 1; index++) {
+        const current = s[index];
+        const next = s[index + 1];
+
+        if (current === null || current === undefined)
+            continue;
+        else if (next === null || next === undefined)
+            continue;
+
+        if (current.text.trim() === next.text.trim() && current.errors === '') {
+            s[index].errors = next.errors;
+            s[index + 1] = null;
+        }
+        else {
+            const regex = ['.', '?', '"', '“', '”', ' @', ':', '¡', '¿', '。', '、', '!'];
+            // punctuation error
+            if (regex.includes(next.text) && next.errors.length > 0) {
+                s[index].errors = next.errors;
+                s[index + 1] = null;
+            }
+            else {
+                let char = '';
+                let _next = '';
+                let pointer = index + 1; // Ahead of next
+                let temp = current.text;
+
+                for (let count = 0; count < current.text.length; count++) {
+                    char += current.text[count].toString().trim();
+                    if (char === next.text.trim() && next.errors === '') {
+                        s[index].errors = current.errors;
+                        _next = s[pointer].text.trim();
+                        temp = temp.split(_next).pop().toString().trim();
+                        if (!isEmpty(temp)) {
+                            let count = temp.split(" ").length;
+                            pointer += count;
+                            for (let c = 0; c < count; c++)
+                                temp = temp.split(_next).pop().toString().trim();
+
+                            let rem = 0;
+                            while (rem < temp.split(" ").length) {
+                                if (current.text.includes(s[pointer].text)) {
+                                    s[pointer] = null; // remove excess words
+                                }
+                                pointer--;
+                                rem++;
+                            }
+                        }
+                        s[index + 1] = null;
+                        char = '';
+                        break;
+                    }
+                }
+            }
+
+        }
+    }
+    return s;
 }
 
 
