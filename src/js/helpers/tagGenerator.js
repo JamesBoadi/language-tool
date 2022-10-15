@@ -16,7 +16,7 @@ const createTag = (text) => {
 
     try {
         let error = "";
-        if (typeof errors !== "string") {
+        if (typeof errors !== "string" && errors !== '') {
             if (getNoErrors())
                 setNoErrors(false);
 
@@ -63,8 +63,9 @@ const createTag = (text) => {
 const removeAllTags = () => {
     counter = 0;
     pointer = 0;
-    errorsArr = [];
-    sortedArr = [];
+    words = [];
+    map.clear();
+
     setNoErrors(false);
     let output = document.getElementById("output-text");
     while (output.lastChild) {
@@ -72,47 +73,117 @@ const removeAllTags = () => {
     }
 }
 
+/* 
+    The API intrepets text differently and we cannot
+    assume how it does so as we did not design the system,
+    therefore any unmatched words that miss the offset marginally
+    will be highlighted here
+*/
+var unmatched = [];
+const unmatchedErrors = (errors) => {
+    let errMatches = errors.matches;
+    const length = errMatches.length;
+    const input = getTextBlock();
+    for (errCount = 0; errCount < length; errCount++) {
+        let error = errMatches[errCount];
+        const context = error.context;
+        const matchOffset = error.offset;
+        const length = error.length;
+        let replacement = errMatches[errCount].replacements;
+
+        let match = track[errCount].modified;
+        let inputOffset = track[errCount].offset;
+        let len = track[errCount].length;
+
+        let word = {};
+        const substring = input.substring(inputOffset, inputOffset + (len)).trim();
+        if (!match) {
+            word.text = substring;
+            word.offset = inputOffset;
+            word.errors = replacement;
+            unmatched.push(word);
+        }
+
+    }
+
+
+}
+
 // Iterate through all of the errors
 const checkErrors = (input, errors) => {
     if (errors.matches.length > 0) {
-        for (let pointer = 0; pointer < errors.matches.length; pointer++) {
-            // all errors
-            const matches = errors.matches[pointer];
-            const offset = matches.offset;
-            const len = matches.length;
-            let wordWithError = findWordWithError(input, offset, len);
-            if (Object.is(wordWithError, null))
-                continue;
-
-            wordWithError.errors = matches.replacements;
-            errorsArr.push(wordWithError);
+        // all errors
+        findWordWithError(input);
+        populate(errors.matches);
+        let pointer = 0;
+        while (pointer < map.size) {
+            const item = map.get(pointer);
+            setOffset(item, errors);
+            pointer++;
         }
+
     }
 }
 
-// Assign errors to each word
-var sortedArr = [];
-const assignErrors = (data) => {
-    const input = getSanitize(); // The text in input box
-    const errors = JSON.parse(data.errors); // JSON response
-    checkErrors(input, errors);
+var matched = [];
+var words = [];
+var track = []; // keep track of words replaced
+const setOffset = (item, errors) => {
+    let errMatches = errors.matches;
+    const len = errMatches.length;
 
-    // console.log(errorsArr);
+    for (errCount = 0; errCount < len; errCount++) {
+        let error = errMatches[errCount];
+        const context = error.context;
+        const offset = context.offset;
+        const matchOffset = error.offset;
+        const len = context.length;
+        const errorText = context.text;
+        let replacement = errMatches[errCount].replacements;
 
-    for (let index = 0; index < input.length; index++) {
-        const id = input[index].id;
-        let res;
-        res = findID(errorsArr, id);
-        if (res !== undefined)
-            sortedArr.push(res);
-        else {
-            input[index].errors = ""; // errors
-            sortedArr.push(input[index]);
+        let modified = track[errCount].modified;
+        let trackOffset = track[errCount].offset;
+        let trackLen = track[errCount].length;
+
+        if (item.offset === matchOffset && modified === false) {
+            track[errCount].modified = true;
+            //console.log(errCount);
+            item.errors = replacement;
+            if (replacement.length === 0)
+                item.errors = error.message;
+
+            unmatched.push(item);
+            return;
         }
     }
 
-    while (pointer < sortedArr.length)
-        createTag(sortedArr[pointer++]);
+    matched.push(item);
+}
+
+// Assign errors to each word
+const assignErrors = (data) => {
+    const input = getSanitize(); // The text in input box
+    let errors = JSON.parse(data.errors); // JSON response
+    checkErrors(input, errors);
+    unmatchedErrors(errors);
+
+    let match;
+    let unmatch;
+
+    mergeNoDuplicates(matched, unmatched)
+    //console.log(m);
+    /*  console.log(unmatched.length);
+      console.log(matched);
+  
+      // Sort offset and insert based on that
+      for (let index = 0; index < input.length; index++) {
+          const matched = matched[index];
+          const unmatched = unmatched[index];
+      }*/
+
+
+    while (pointer < words.length)
+        createTag(words[pointer++]);
 
     if (getNoErrors()) {
         outputPlaceholder.innerText = "No Errors";
@@ -125,6 +196,53 @@ const assignErrors = (data) => {
 
     setNoErrors(true);
 }
+
+function mergeNoDuplicates(matched, unmatched) {
+    let sorted = new Map();
+    let matchedLen = matched.length;
+    let unmatchedLen = unmatched.length;
+    // console.log(matched);
+    //  console.log(unmatched);
+
+    for (let index = 0; index < matchedLen; index++)
+        sorted.set(index, matched[index]);
+
+    let counter = 0;
+    for (let index = matchedLen; index < matchedLen + unmatchedLen; index++)
+        sorted.set(index, unmatched[counter++]);
+
+    // Size of map can't dynamically increase swap afterwards
+
+    let sortedLen = sorted.size;
+    console.log(sortedLen);
+/*
+    for (var mCount = sortedLen - 1; mCount >= (0); mCount--) {
+        for (var uCount = sortedLen - mCount; uCount > 0; uCount--) {
+            if(sorted.get(uCount) === undefined)
+                continue;
+            if (sorted.get(mCount).offset > sorted.get(uCount - 1).offset) 
+            {
+                sorted.set(mCount, sorted.get(uCount));
+                sorted.set(mCount - 1, sorted.get(uCount));
+            }
+        }
+    } */
+
+    for (var mCount = 0; mCount <= (matchedLen - 1); mCount++) {
+        for (var uCount = 0; uCount <= (unmatchedLen - 1); uCount++) {
+            //Compare the adjacent positions
+            if (unmatched[uCount].offset > matched[mCount].offset) {
+                // Set keys 
+                sorted.set(mCount, unmatched[uCount]);
+                sorted.set(uCount, matched[mCount] )
+            }
+        }
+    }
+
+    console.log(sorted);
+}
+
+
 
 
 
