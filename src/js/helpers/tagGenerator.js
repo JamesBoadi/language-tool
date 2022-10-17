@@ -151,7 +151,7 @@ const setOffset = (item, errors) => {
             //console.log(errCount);
             item.errors = replacement;
             if (replacement.length === 0)
-                item.errors = [error.message];
+                item.errors = [{ value: error.message }];
 
             unmatched.push(item);
             return;
